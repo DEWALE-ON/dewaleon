@@ -123,8 +123,9 @@ jobPostingForm.addEventListener('submit', function (event) {
 
   jobPostingForm.reset();
 
-  feedback.scrollIntoView({
+    feedback.scrollIntoView({
     behavior: 'smooth',
     block: 'nearest'
   });
 });
+}

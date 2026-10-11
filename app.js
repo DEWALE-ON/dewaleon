@@ -80,6 +80,131 @@ renderJobs();renderPeople();
 
 const jobPostingForm = document.getElementById('jobPostingForm');
 
+async function loadSavedJobs() {
+  try {
+    const { data, error } = await supabaseClient
+      .from('jobs')
+      .select('id, title, description, facility_name, city, employment_type, qualification_required, salary')
+      .eq('status', 'published');
+
+    if (error) throw error;
+
+    if (data && data.length) {
+      const savedJobs = data.map(job => ({
+        id: job.id,
+        title: job.title,
+        org: job.facility_name,
+        location: job.city,
+        type: job.employment_type,
+        salary: job.salary || 'Pay not specified',
+        category: job.qualification_required || 'Healthcare',
+        initials: (job.facility_name || 'DH').substring(0, 2).toUpperCase(),
+        tone: '',
+        experience: job.qualification_required || 'See requirements',
+        description: job.description
+      }));
+
+      jobs.unshift(...savedJobs);
+      renderJobs();
+    }
+  } catch (error) {
+    console.error('Could not load published jobs:', error.message);
+  }
+}
+
+if (jobPostingForm) {
+  jobPostingForm.addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    if (!jobPostingForm.reportValidity()) return;
+
+    const feedback = document.getElementById('jobPostingFeedback');
+    const submitButton = jobPostingForm.querySelector('button[type="submit"]');
+    const formData = new FormData(jobPostingForm);
+
+    const { data: { user }, error: userError } =
+      await supabaseClient.auth.getUser();
+
+    if (userError || !user) {
+      feedback.textContent = 'Please log in before submitting a vacancy.';
+      openDialog('login');
+      return;
+    }
+
+    submitButton.disabled = true;
+    feedback.textContent = 'Checking employer access...';
+
+    try {
+      const { data: profile, error: profileError } = await supabaseClient
+        .from('profiles')
+        .select('role, employer_verified')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      if (profile.role !== 'employer' || profile.employer_verified !== true) {
+        feedback.textContent =
+          'Your employer account must be verified before you can publish vacancies.';
+        return;
+      }
+
+      const facility = String(formData.get('facility_name')).trim();
+
+      const vacancy = {
+        employer_id: user.id,
+        title: String(formData.get('title')).trim(),
+        facility_name: facility,
+        city: String(formData.get('city')).trim(),
+        employment_type: formData.get('employment_type'),
+        qualification_required: String(
+          formData.get('qualification_required')
+        ).trim(),
+        salary: String(formData.get('salary') || '').trim(),
+        description: String(formData.get('description')).trim(),
+        status: 'published'
+      };
+
+      feedback.textContent = 'Saving vacancy...';
+
+      const { data, error } = await supabaseClient
+        .from('jobs')
+        .insert(vacancy)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const savedJob = {
+        id: data.id,
+        title: data.title,
+        org: data.facility_name,
+        location: data.city,
+        type: data.employment_type,
+        salary: data.salary || 'Pay not specified',
+        category: data.qualification_required || 'Healthcare',
+        initials: facility.substring(0, 2).toUpperCase(),
+        tone: '',
+        experience: data.qualification_required || 'See requirements',
+        description: data.description
+      };
+
+      jobs.unshift(savedJob);
+      renderJobs();
+      jobPostingForm.reset();
+      feedback.textContent = 'Vacancy saved and published successfully.';
+    } catch (error) {
+      console.error('Vacancy submission failed:', error);
+      feedback.textContent =
+        error.message || 'Could not save vacancy. Please try again.';
+    } finally {
+      submitButton.disabled = false;
+    }
+  });
+}
+
+loadSavedJobs();
+
 if (jobPostingForm) {
   
 jobPostingForm.addEventListener('submit', function (event) {

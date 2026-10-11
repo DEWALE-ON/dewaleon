@@ -77,3 +77,25 @@ $('#interestForm').addEventListener('submit', async (e) => {
   }
 });
 renderJobs();renderPeople();
+
+const jobPostingForm = document.getElementById('jobPostingForm');
+
+if (jobPostingForm) {
+  jobPostingForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const feedback = document.getElementById('jobPostingFeedback');
+
+    if (!jobPostingForm.reportValidity()) {
+      return;
+    }
+
+    feedback.textContent =
+      'Thank you! Your vacancy details have been checked. This is a prototype: the job has not been saved or published yet.';
+
+    feedback.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest'
+    });
+  });
+}

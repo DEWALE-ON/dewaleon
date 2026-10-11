@@ -81,21 +81,50 @@ renderJobs();renderPeople();
 const jobPostingForm = document.getElementById('jobPostingForm');
 
 if (jobPostingForm) {
-  jobPostingForm.addEventListener('submit', function (event) {
-    event.preventDefault();
+  
+jobPostingForm.addEventListener('submit', function (event) {
+  event.preventDefault();
 
-    const feedback = document.getElementById('jobPostingFeedback');
+  if (!jobPostingForm.reportValidity()) {
+    return;
+  }
 
-    if (!jobPostingForm.reportValidity()) {
-      return;
-    }
+  const feedback = document.getElementById('jobPostingFeedback');
+  const formData = new FormData(jobPostingForm);
 
-    feedback.textContent =
-      'Thank you! Your vacancy details have been checked. This is a prototype: the job has not been saved or published yet.';
+  const title = formData.get('title').trim();
+  const facility = formData.get('facility_name').trim();
+  const city = formData.get('city').trim();
+  const type = formData.get('employment_type');
+  const qualification = formData.get('qualification_required').trim();
+  const salary = formData.get('salary').trim();
+  const description = formData.get('description').trim();
 
-    feedback.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest'
-    });
+  const newJob = {
+    id: Date.now(),
+    title: title,
+    org: facility,
+    location: city,
+    type: type,
+    salary: salary || 'Pay not specified',
+    category: qualification,
+    initials: facility.substring(0, 2).toUpperCase(),
+    tone: '',
+    experience: qualification,
+    description: description
+  };
+
+  jobs.unshift(newJob);
+
+  renderJobs();
+
+  feedback.textContent =
+    'Vacancy added to the prototype! It is visible in this browser session only and has not been saved permanently or published to other visitors.';
+
+  jobPostingForm.reset();
+
+  feedback.scrollIntoView({
+    behavior: 'smooth',
+    block: 'nearest'
   });
-}
+});

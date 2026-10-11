@@ -186,20 +186,17 @@ if (jobPostingForm) {
     feedback.textContent = 'Checking employer access...';
 
     try {
-      const { data: profile, error: profileError } = await supabaseClient
-        .from('profiles')
-        .select('role, employer_verified')
-        .eq('id', user.id)
-        .single();
+      const { data: verified, error: verifyError } =
+  await supabaseClient.rpc('is_verified_employer');
 
-      if (profileError) throw profileError;
+if (verifyError) throw verifyError;
 
-      if (profile.role !== 'employer' || profile.employer_verified !== true) {
-        feedback.textContent =
-          'Your employer account must be verified before you can publish vacancies.';
-        return;
-      }
-
+if (!verified) {
+  feedback.textContent =
+    'Your employer account must be verified before you can publish vacancies.';
+  return;
+}
+      
       const facility = String(formData.get('facility_name')).trim();
 
       const vacancy = {

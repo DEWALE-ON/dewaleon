@@ -86,7 +86,40 @@
 
   <footer class="site-footer"><div class="footer-main"><a class="brand brand-footer" href="#home" data-view="home"><span class="brand-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 32.5S5.5 24.1 5.5 13.8A7.6 7.6 0 0 1 20 10.2a7.6 7.6 0 0 1 14.5 3.6C34.5 24.1 20 32.5 20 32.5Z" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.5 20h6l3-5 4.1 10 2.7-5h3.2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>dewa<span class="brand-accent">leon</span><small>HEALTHCARE CAREERS</small></span></a><p>Connecting healthcare talent with the places that need them.</p><div class="footer-links"><a href="#jobs" data-view="jobs">Find jobs</a><a href="#professionals" data-view="professionals">Find professionals</a><a href="#employers" data-view="employers">For employers</a><a href="#community" data-view="community">Community</a></div></div><div class="footer-bottom"><span>© 2026 DEWALEON prototype.</span><span>Built around trust, opportunity and better care.</span></div></footer>
 
-  <dialog id="actionDialog" class="modal"><form method="dialog" class="modal-close-form"><button class="modal-close" aria-label="Close dialog">×</button></form><div class="modal-symbol">✳</div><div class="eyebrow">EARLY ACCESS</div><h2 id="dialogTitle">Join the community</h2><p id="dialogText">We're preparing the first version. Leave your details in the production version to get started.</p><form id="interestForm" class="interest-form"><label>Your name<input name="name" required placeholder="Full name"></label><label>Email address<input name="email" type="email" required placeholder="you@example.com"></label><label>I am a<select name="role"><option>Healthcare professional</option><option>Hospital or clinic</option><option>Diagnostic centre</option><option>Pharmacy</option><option>Recruiter or staffing agency</option><option>Other healthcare provider</option></select></label><button class="btn btn-primary" type="submit">Preview sign-up <span>↗</span></button></form><p class="form-feedback" id="formFeedback" role="status"></p><small class="modal-footnote">Demo only — this prototype does not send or store your information.</small></dialog>
+  <dialog id="actionDialog" class="modal"><form method="dialog" class="modal-close-form"><button class="modal-close" aria-label="Close dialog">×</button></form><div class="modal-symbol">✳</div><div class="eyebrow">EARLY ACCESS</div><h2 id="dialogTitle">Join the community</h2><p id="dialogText">We're preparing the first version. Leave your details in the production version to get started.</p>
+<form id="interestForm" class="interest-form">
+  <label>
+    Full name
+    <input name="name" type="text" required
+      placeholder="Enter your full name" autocomplete="name">
+  </label>
+
+  <label>
+    Email address
+    <input name="email" type="email" required
+      placeholder="you@example.com" autocomplete="email">
+  </label>
+
+  <label>
+    Account type
+    <select name="role" required>
+      <option value="professional">Healthcare professional</option>
+      <option value="employer">Hospital or healthcare employer</option>
+    </select>
+  </label>
+
+  <label>
+    Password
+    <input name="password" type="password" required
+      minlength="8" placeholder="At least 8 characters"
+      autocomplete="new-password">
+  </label>
+
+  <button class="btn btn-primary" type="submit">
+    Create account
+  </button>
+</form>
+  <p class="form-feedback" id="formFeedback" role="status"></p><small class="modal-footnote">Demo only — this prototype does not send or store your information.</small></dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>

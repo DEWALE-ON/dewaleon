@@ -36,3 +36,17 @@ $('#menuToggle').addEventListener('click',()=>{const open=$('#mainNav').classLis
 $('#searchJobs').addEventListener('click',filterJobs);$('#jobSearch').addEventListener('input',filterJobs);$('#locationFilter').addEventListener('change',filterJobs);$('#typeFilter').addEventListener('change',filterJobs);$('#searchPeople').addEventListener('click',renderPeople);$('#peopleSearch').addEventListener('input',renderPeople);$('#peopleLocation').addEventListener('change',renderPeople);
 $('#interestForm').addEventListener('submit',e=>{e.preventDefault();$('#formFeedback').textContent='Thanks! This is a demo only; your details have not been sent or saved.';$('#interestForm').reset();});
 renderJobs();renderPeople();
+
+supabaseClient
+  .from('profiles')
+  .select('id')
+  .limit(1)
+  .then(({ error }) => {
+    if (error) {
+      toast('Connection test failed. Please check settings.');
+      console.error('Supabase test:', error);
+    } else {
+      toast('Supabase connection successful!');
+    }
+  });
+

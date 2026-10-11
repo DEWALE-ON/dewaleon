@@ -69,47 +69,64 @@ document.addEventListener('click',e=>{const view=e.target.closest('[data-view]')
 $('#menuToggle').addEventListener('click',()=>{const open=$('#mainNav').classList.toggle('open');$('#menuToggle').setAttribute('aria-expanded',String(open));});
 $('#searchJobs').addEventListener('click',filterJobs);$('#jobSearch').addEventListener('input',filterJobs);$('#locationFilter').addEventListener('change',filterJobs);$('#typeFilter').addEventListener('change',filterJobs);$('#searchPeople').addEventListener('click',renderPeople);$('#peopleSearch').addEventListener('input',renderPeople);$('#peopleLocation').addEventListener('change',renderPeople);
 
+
 $('#interestForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const form = e.currentTarget;
   const feedback = $('#formFeedback');
-  const submitButton = form.querySelector('button[type="submit"]');
+  const button = form.querySelector('button[type="submit"]');
 
   const name = form.elements.name.value.trim();
   const email = form.elements.email.value.trim();
   const role = form.elements.role.value;
   const password = form.elements.password.value;
+  const isLogin = form.dataset.mode === 'login';
 
-  feedback.textContent = 'Creating your account...';
-  submitButton.disabled = true;
+  button.disabled = true;
+  feedback.textContent = isLogin ? 'Logging in...' : 'Creating your account...';
 
   try {
+    if (isLogin) {
+      const { error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      feedback.textContent = 'Login successful! You are signed in.';
+      form.reset();
+      return;
+    }
+
     const { data, error } = await supabaseClient.auth.signUp({
       email,
       password,
       options: {
-  emailRedirectTo: 'https://dewale-on.github.io/dewaleon/',
-  data: {
-    full_name: name,
-    role: role
-  }
+        emailRedirectTo: 'https://dewale-on.github.io/dewaleon/',
+        data: {
+          full_name: name,
+          role: role
+        }
       }
     });
 
     if (error) throw error;
 
     feedback.textContent = data.session
-      ? 'Account created! You can now continue to DEWALEON.'
-      : 'Registration started! Check your email for a confirmation link before logging in.';
+      ? 'Account created successfully. You are signed in.'
+      : 'Registration started! Check your email to confirm your account.';
 
     form.reset();
+
   } catch (error) {
-    feedback.textContent = error.message || 'Registration failed. Please try again.';
+    feedback.textContent = error.message || 'Something went wrong. Please try again.';
   } finally {
-    submitButton.disabled = false;
+    button.disabled = false;
   }
 });
+
 renderJobs();renderPeople();
 
 const jobPostingForm = document.getElementById('jobPostingForm');

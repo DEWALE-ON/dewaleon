@@ -75,6 +75,57 @@
     <section class="view inner-view" id="view-employers">
       <div class="inner-hero employer-hero"><div class="eyebrow">FOR HOSPITALS & HEALTHCARE PROVIDERS</div><h1>Build the team that <em>care deserves.</em></h1><p>Find healthcare talent, manage applications and spend less time searching for the right people.</p><button class="btn btn-primary btn-large" data-action="employerSignup">Create an employer account <span>↗</span></button></div>
       <div class="employer-benefits"><article><span>01</span><h3>Post opportunities</h3><p>Share roles with clear requirements, location and employment type.</p></article><article><span>02</span><h3>Discover talent</h3><p>Search professionals by role, specialty, experience and verification status.</p></article><article><span>03</span><h3>Manage applicants</h3><p>Keep applications organized in one simple hiring dashboard.</p></article></div>
+      <div class="job-posting-panel">
+  <div class="eyebrow">EMPLOYER WORKSPACE</div>
+  <h2>Post a healthcare vacancy</h2>
+  <p>Provide the details professionals need to understand your opportunity.</p>
+
+  <form id="jobPostingForm">
+    <label for="postJobTitle">Job title *</label>
+    <input id="postJobTitle" name="title" type="text"
+      placeholder="e.g. Registered Nurse" required>
+
+    <label for="postFacility">Hospital or facility name *</label>
+    <input id="postFacility" name="facility_name" type="text"
+      placeholder="Enter facility name" required>
+
+    <label for="postCity">City *</label>
+    <input id="postCity" name="city" type="text"
+      placeholder="e.g. Ibadan or Lagos" required>
+
+    <label for="postEmploymentType">Employment type *</label>
+    <select id="postEmploymentType" name="employment_type" required>
+      <option value="">Select employment type</option>
+      <option value="Full-time">Full-time</option>
+      <option value="Part-time">Part-time</option>
+      <option value="Contract">Contract</option>
+      <option value="Temporary">Temporary</option>
+      <option value="Locum">Locum</option>
+    </select>
+
+    <label for="postQualification">Required qualification *</label>
+    <input id="postQualification" name="qualification_required"
+      type="text" placeholder="e.g. Registered Nurse (RN)" required>
+
+    <label for="postSalary">Salary or pay range (optional)</label>
+    <input id="postSalary" name="salary" type="text"
+      placeholder="e.g. ₦150,000–₦250,000 monthly">
+
+    <label for="postDescription">Job description and requirements *</label>
+    <textarea id="postDescription" name="description" rows="5"
+      placeholder="Describe the duties, experience and requirements..."
+      required></textarea>
+
+    <button class="btn btn-primary btn-large" type="submit">
+      Submit vacancy
+    </button>
+
+    <p id="jobPostingFeedback" role="status">
+      Prototype form: vacancies will not be published until employer
+      access and database permissions are connected.
+    </p>
+  </form>
+      </div>
       <div class="employer-note"><span class="mini-icon mint">✓</span><div><strong>Trust is part of the product.</strong><p>Employer onboarding will include identity and facility checks. A profile or listing will not be marked verified until the relevant checks are completed.</p></div></div>
     </section>
 

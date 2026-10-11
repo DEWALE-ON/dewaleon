@@ -30,7 +30,41 @@ function renderJobs(){ $('#featuredJobs').innerHTML=jobs.slice(0,3).map(jobCard)
 function filterJobs(){const q=($('#jobSearch')?.value||'').toLowerCase().trim();const loc=$('#locationFilter')?.value||'';const type=$('#typeFilter')?.value||'';const filtered=jobs.filter(j=>(!q||`${j.title} ${j.org} ${j.category} ${j.description}`.toLowerCase().includes(q))&&(!loc||j.location===loc)&&(!type||j.type===type));$('#allJobs').innerHTML=filtered.length?filtered.map(jobRow).join(''):'<div class="empty-state"><strong>No matching sample roles</strong>Try another keyword, location or job type.</div>';$('#jobCount').textContent=`${filtered.length} sample ${filtered.length===1?'role':'roles'} shown`;}
 function renderPeople(){const q=($('#peopleSearch')?.value||'').toLowerCase().trim();const loc=$('#peopleLocation')?.value||'';const filtered=people.filter(p=>(!q||`${p.name} ${p.profession} ${p.specialty} ${p.skills}`.toLowerCase().includes(q))&&(!loc||p.location===loc));$('#peopleGrid').innerHTML=filtered.length?filtered.map((p,i)=>`<article class="person-card"><div class="person-avatar">${p.initials}</div><h3>${p.name}</h3><div class="profession">${p.profession}</div><p>${p.specialty}<br>${p.location} · ${p.experience}</p><div class="person-meta"><span class="tag">Sample profile</span></div><button class="btn btn-outline" data-contact="${i}">View profile</button></article>`).join(''):'<div class="empty-state"><strong>No matching sample profiles</strong>Try a different profession or location.</div>';}
 function setView(name){const valid=['home','jobs','professionals','employers','community'].includes(name)?name:'home';$$('.view').forEach(v=>v.classList.toggle('active',v.id===`view-${valid}`));$$('[data-view]').forEach(a=>a.classList.toggle('nav-active',a.dataset.view===valid));$('#mainNav').classList.remove('open');$('#menuToggle').setAttribute('aria-expanded','false');window.scrollTo({top:0,behavior:'smooth'});if(valid==='jobs')filterJobs();if(valid==='professionals')renderPeople();}
-function openDialog(kind='signup'){const dialog=$('#actionDialog');const titles={signup:['Join the community','Choose your path in healthcare. The production version will let you create a professional or employer account.'],login:['Welcome back','Login is not connected in this prototype yet. We will add secure accounts when the backend is ready.'],employerSignup:['Hire healthcare talent','The production version will help your organization create a profile, complete checks and post vacancies.'],apply:['Explore this opportunity','In the full product, you will be able to review requirements and apply using your professional profile.'],contact:['Professional profile','The live directory will show information according to each professional’s privacy and visibility settings.']};const [title,desc]=titles[kind]||titles.signup;$('#dialogTitle').textContent=title;$('#dialogText').textContent=desc;$('#interestForm').style.display=['signup','employerSignup'].includes(kind)?'grid':'none';$('#formFeedback').textContent='';dialog.showModal();}
+
+function openDialog(kind = 'signup') {
+  const dialog = $('#actionDialog');
+  const form = $('#interestForm');
+  const title = $('#dialogTitle');
+  const desc = $('#dialogText');
+  const feedback = $('#formFeedback');
+
+  const isLogin = kind === 'login';
+
+  title.textContent = isLogin ? 'Welcome back' :
+    kind === 'employerSignup' ? 'Hire healthcare talent' :
+    'Join the community';
+
+  desc.textContent = isLogin
+    ? 'Log in with the email and password you registered with.'
+    : kind === 'employerSignup'
+      ? 'Create an employer account. Verification is required before publishing vacancies.'
+      : 'Create your DEWALEON account.';
+
+  form.style.display = ['signup', 'employerSignup', 'login'].includes(kind)
+    ? 'grid'
+    : 'none';
+
+  form.dataset.mode = isLogin ? 'login' : 'signup';
+
+  form.querySelector('button[type="submit"]').textContent =
+    isLogin ? 'Log in' : 'Create account';
+
+  form.elements.password.autocomplete =
+    isLogin ? 'current-password' : 'new-password';
+
+  feedback.textContent = '';
+  dialog.showModal();
+}
 document.addEventListener('click',e=>{const view=e.target.closest('[data-view]');if(view){e.preventDefault();setView(view.dataset.view);return;}const action=e.target.closest('[data-action]');if(action){openDialog(action.dataset.action);return;}const apply=e.target.closest('[data-apply]');if(apply){openDialog('apply');return;}const contact=e.target.closest('[data-contact]');if(contact){openDialog('contact');return;}const save=e.target.closest('[data-save]');if(save){save.classList.toggle('saved');save.textContent=save.classList.contains('saved')?'♥':'♡';toast(save.classList.contains('saved')?'Saved in this demo session.':'Removed from saved jobs.');return;}});
 $('#menuToggle').addEventListener('click',()=>{const open=$('#mainNav').classList.toggle('open');$('#menuToggle').setAttribute('aria-expanded',String(open));});
 $('#searchJobs').addEventListener('click',filterJobs);$('#jobSearch').addEventListener('input',filterJobs);$('#locationFilter').addEventListener('change',filterJobs);$('#typeFilter').addEventListener('change',filterJobs);$('#searchPeople').addEventListener('click',renderPeople);$('#peopleSearch').addEventListener('input',renderPeople);$('#peopleLocation').addEventListener('change',renderPeople);

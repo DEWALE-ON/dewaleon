@@ -1,3 +1,10 @@
+const SUPABASE_URL = 'https://izfnbmukfhnvwgnngjzc.supabase.co/rest/v1/';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_FsEZIzAKMHiyQw0j0Wc1zQ_4AgrOlx2';
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
 const jobs = [
   {id:1,title:'Registered Nurse',org:'Greenfield Specialist Hospital',location:'Ibadan',type:'Full-time',salary:'₦180k–₦250k / month',category:'Nursing',initials:'GH',tone:'',experience:'2+ years',description:'Support safe, compassionate care across a multidisciplinary clinical team.'},
   {id:2,title:'Medical Laboratory Scientist',org:'Pinnacle Diagnostics',location:'Lagos',type:'Full-time',salary:'₦220k–₦300k / month',category:'Laboratory',initials:'PD',tone:'lilac',experience:'3+ years',description:'Perform diagnostic testing and contribute to accurate, timely laboratory results.'},

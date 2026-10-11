@@ -55,10 +55,11 @@ $('#interestForm').addEventListener('submit', async (e) => {
       email,
       password,
       options: {
-        data: {
-          full_name: name,
-          role: role
-        }
+  emailRedirectTo: 'https://dewale-on.github.io/dewaleon/',
+  data: {
+    full_name: name,
+    role: role
+  }
       }
     });
 

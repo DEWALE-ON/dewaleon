@@ -1,4 +1,4 @@
-const SUPABASE_URL = 'https://izfnbmukfhnvwgnngjzc.supabase.co/rest/v1/';
+const SUPABASE_URL = 'https://izfnbmukfhnvwgnngjzc.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_FsEZIzAKMHiyQw0j0Wc1zQ_4AgrOlx2';
 
 const supabaseClient = window.supabase.createClient(
@@ -34,19 +34,45 @@ function openDialog(kind='signup'){const dialog=$('#actionDialog');const titles=
 document.addEventListener('click',e=>{const view=e.target.closest('[data-view]');if(view){e.preventDefault();setView(view.dataset.view);return;}const action=e.target.closest('[data-action]');if(action){openDialog(action.dataset.action);return;}const apply=e.target.closest('[data-apply]');if(apply){openDialog('apply');return;}const contact=e.target.closest('[data-contact]');if(contact){openDialog('contact');return;}const save=e.target.closest('[data-save]');if(save){save.classList.toggle('saved');save.textContent=save.classList.contains('saved')?'♥':'♡';toast(save.classList.contains('saved')?'Saved in this demo session.':'Removed from saved jobs.');return;}});
 $('#menuToggle').addEventListener('click',()=>{const open=$('#mainNav').classList.toggle('open');$('#menuToggle').setAttribute('aria-expanded',String(open));});
 $('#searchJobs').addEventListener('click',filterJobs);$('#jobSearch').addEventListener('input',filterJobs);$('#locationFilter').addEventListener('change',filterJobs);$('#typeFilter').addEventListener('change',filterJobs);$('#searchPeople').addEventListener('click',renderPeople);$('#peopleSearch').addEventListener('input',renderPeople);$('#peopleLocation').addEventListener('change',renderPeople);
-$('#interestForm').addEventListener('submit',e=>{e.preventDefault();$('#formFeedback').textContent='Thanks! This is a demo only; your details have not been sent or saved.';$('#interestForm').reset();});
+
+$('#interestForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const form = e.currentTarget;
+  const feedback = $('#formFeedback');
+  const submitButton = form.querySelector('button[type="submit"]');
+
+  const name = form.elements.name.value.trim();
+  const email = form.elements.email.value.trim();
+  const role = form.elements.role.value;
+  const password = form.elements.password.value;
+
+  feedback.textContent = 'Creating your account...';
+  submitButton.disabled = true;
+
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: name,
+          role: role
+        }
+      }
+    });
+
+    if (error) throw error;
+
+    feedback.textContent = data.session
+      ? 'Account created! You can now continue to DEWALEON.'
+      : 'Registration started! Check your email for a confirmation link before logging in.';
+
+    form.reset();
+  } catch (error) {
+    feedback.textContent = error.message || 'Registration failed. Please try again.';
+  } finally {
+    submitButton.disabled = false;
+  }
+});
 renderJobs();renderPeople();
-
-supabaseClient
-  .from('profiles')
-  .select('id')
-  .limit(1)
-  .then(({ error }) => {
-    if (error) {
-      toast('Connection test failed. Please check settings.');
-      console.error('Supabase test:', error);
-    } else {
-      toast('Supabase connection successful!');
-    }
-  });
-

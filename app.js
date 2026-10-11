@@ -255,9 +255,3 @@ if (jobPostingForm) {
 }
 
 loadSavedJobs();
-
-if (jobPostingForm) {
-  
-jobPostingForm.addEventListener('submit', function (event) {
-  event.preventDefault();
-

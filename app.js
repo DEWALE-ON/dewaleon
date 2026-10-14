@@ -129,6 +129,82 @@ $('#interestForm').addEventListener('submit', async (e) => {
 
 renderJobs();renderPeople();
 
+async function loadEmployerDashboard() {
+const dashboard = document.getElementById('employerDashboard');
+if (!dashboard) return;
+
+const { data: { user }, error: authError } =
+await supabaseClient.auth.getUser();
+
+if (authError || !user) {
+dashboard.hidden = false;
+document.getElementById('employerJobsList').textContent =
+'Please log in as an employer to view your vacancies.';
+return;
+}
+
+const jobsList = document.getElementById('employerJobsList');
+jobsList.textContent = 'Loading your vacancies...';
+
+try {
+const { data: employerJobs, error: jobsError } =
+await supabaseClient
+.from('jobs')
+.select('id, title, facility_name, city, status')
+.eq('employer_id', user.id);
+
+if (jobsError) throw jobsError;
+
+const jobIds = (employerJobs || []).map(job => job.id);
+
+let applicationCount = 0;
+
+if (jobIds.length) {
+  const { count, error: applicationsError } =
+    await supabaseClient
+      .from('applications')
+      .select('id', { count: 'exact', head: true })
+      .in('job_id', jobIds);
+
+  if (applicationsError) throw applicationsError;
+  applicationCount = count || 0;
+}
+
+document.getElementById('employerJobCount').textContent =
+  (employerJobs || []).length;
+
+document.getElementById('employerApplicationCount').textContent =
+  applicationCount;
+
+jobsList.replaceChildren();
+
+if (!employerJobs || !employerJobs.length) {
+  jobsList.textContent = 'You have not posted any vacancies yet.';
+  return;
+}
+
+employerJobs.forEach(job => {
+  const card = document.createElement('article');
+  const title = document.createElement('h4');
+  const details = document.createElement('p');
+  const status = document.createElement('p');
+
+  title.textContent = job.title;
+  details.textContent =
+    `${job.facility_name || ''} · ${job.city || ''}`;
+  status.textContent = `Status: ${job.status}`;
+
+  card.append(title, details, status);
+  jobsList.appendChild(card);
+});
+
+} catch (error) {
+console.error('Employer dashboard error:', error);
+jobsList.textContent =
+'Could not load dashboard data. Please try again later.';
+}
+}
+
 const jobPostingForm = document.getElementById('jobPostingForm');
 
 async function loadSavedJobs() {

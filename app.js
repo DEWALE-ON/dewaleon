@@ -86,6 +86,21 @@ $('#interestForm').addEventListener('submit', async (e) => {
   button.disabled = true;
   feedback.textContent = isLogin ? 'Logging in...' : 'Creating your account...';
 
+  const { data: { user } } = await supabaseClient.auth.getUser();
+
+if (user) {
+  const { data: profile } = await supabaseClient
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  if (profile && profile.role === 'employer') {
+    await loadEmployerDashboard();
+    document.getElementById('employerDashboard').hidden = false;
+  }
+}
+
   try {
     if (isLogin) {
       const { error } = await supabaseClient.auth.signInWithPassword({

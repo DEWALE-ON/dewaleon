@@ -29,7 +29,40 @@ function jobRow(job){return `<article class="job-row"><span class="org-mark ${jo
 function renderJobs(){ $('#featuredJobs').innerHTML=jobs.slice(0,3).map(jobCard).join(''); filterJobs(); }
 function filterJobs(){const q=($('#jobSearch')?.value||'').toLowerCase().trim();const loc=$('#locationFilter')?.value||'';const type=$('#typeFilter')?.value||'';const filtered=jobs.filter(j=>(!q||`${j.title} ${j.org} ${j.category} ${j.description}`.toLowerCase().includes(q))&&(!loc||j.location===loc)&&(!type||j.type===type));$('#allJobs').innerHTML=filtered.length?filtered.map(jobRow).join(''):'<div class="empty-state"><strong>No matching sample roles</strong>Try another keyword, location or job type.</div>';$('#jobCount').textContent=`${filtered.length} sample ${filtered.length===1?'role':'roles'} shown`;}
 function renderPeople(){const q=($('#peopleSearch')?.value||'').toLowerCase().trim();const loc=$('#peopleLocation')?.value||'';const filtered=people.filter(p=>(!q||`${p.name} ${p.profession} ${p.specialty} ${p.skills}`.toLowerCase().includes(q))&&(!loc||p.location===loc));$('#peopleGrid').innerHTML=filtered.length?filtered.map((p,i)=>`<article class="person-card"><div class="person-avatar">${p.initials}</div><h3>${p.name}</h3><div class="profession">${p.profession}</div><p>${p.specialty}<br>${p.location} · ${p.experience}</p><div class="person-meta"><span class="tag">Sample profile</span></div><button class="btn btn-outline" data-contact="${i}">View profile</button></article>`).join(''):'<div class="empty-state"><strong>No matching sample profiles</strong>Try a different profession or location.</div>';}
-function setView(name){const valid=['home','jobs','professionals','employers','community'].includes(name)?name:'home';$$('.view').forEach(v=>v.classList.toggle('active',v.id===`view-${valid}`));$$('[data-view]').forEach(a=>a.classList.toggle('nav-active',a.dataset.view===valid));$('#mainNav').classList.remove('open');$('#menuToggle').setAttribute('aria-expanded','false');window.scrollTo({top:0,behavior:'smooth'});if(valid==='jobs')filterJobs();if(valid==='professionals')renderPeople();}
+function setView(name) {
+if (name === 'employerDashboard') {
+$$('.view').forEach(v => v.classList.remove('active'));
+document.getElementById('employerDashboard').hidden = false;
+$$('#mainNav [data-view]').forEach(a =>
+a.classList.remove('nav-active')
+);
+$('#mainNav').classList.remove('open');
+$('#menuToggle').setAttribute('aria-expanded', 'false');
+window.scrollTo({ top: 0, behavior: 'smooth' });
+loadEmployerDashboard();
+return;
+}
+
+document.getElementById('employerDashboard').hidden = true;
+
+const valid = ['home', 'jobs', 'professionals', 'employers', 'community']
+.includes(name) ? name : 'home';
+
+$$('.view').forEach(v =>
+v.classList.toggle('active', v.id === "view-${valid}")
+);
+
+$$('[data-view]').forEach(a =>
+a.classList.toggle('nav-active', a.dataset.view === valid)
+);
+
+$('#mainNav').classList.remove('open');
+$('#menuToggle').setAttribute('aria-expanded', 'false');
+window.scrollTo({ top: 0, behavior: 'smooth' });
+
+if (valid === 'jobs') filterJobs();
+if (valid === 'professionals') renderPeople();
+}
 
 function openDialog(kind = 'signup') {
   const dialog = $('#actionDialog');

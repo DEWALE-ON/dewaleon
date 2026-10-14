@@ -144,8 +144,30 @@ if (user) {
       if (error) throw error;
 
       feedback.textContent = 'Login successful! You are signed in.';
-      form.reset();
-      return;
+
+  const { data: { user } } = await supabaseClient.auth.getUser();
+
+  if (user) {
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (!profileError && profile?.role === 'employer') {
+      const dashboardLink = document.getElementById('employerDashboardLink');
+
+      if (dashboardLink) {
+        dashboardLink.hidden = false;
+      }
+
+      await loadEmployerDashboard();
+      document.getElementById('employerDashboard').hidden = false;
+    }
+  }
+
+  form.reset();
+  return;
     }
 
     const { data, error } = await supabaseClient.auth.signUp({

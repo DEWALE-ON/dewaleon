@@ -257,7 +257,9 @@ if (!employerJobs || !employerJobs.length) {
   return;
 }
 
+
 employerJobs.forEach(job => {
+  // Create the dashboard vacancy card
   const card = document.createElement('article');
   const title = document.createElement('h4');
   const details = document.createElement('p');
@@ -270,6 +272,46 @@ employerJobs.forEach(job => {
 
   card.append(title, details, status);
   jobsList.appendChild(card);
+
+  // Create a separate vacancy management card
+  const managementList =
+    document.getElementById('vacancyManagementList');
+
+  if (managementList) {
+    const managementCard = document.createElement('article');
+    const managementTitle = document.createElement('h4');
+    const managementDetails = document.createElement('p');
+    const managementStatus = document.createElement('p');
+    const manageButton = document.createElement('button');
+
+    managementTitle.textContent = job.title;
+    managementDetails.textContent =
+      `${job.facility_name || ''} · ${job.city || ''}`;
+    managementStatus.textContent = `Current status: ${job.status}`;
+
+    manageButton.type = 'button';
+    manageButton.textContent = 'View management options';
+    manageButton.className = 'btn btn-secondary';
+
+    manageButton.addEventListener('click', () => {
+      const feedback =
+        document.getElementById('vacancyManagementFeedback');
+
+      if (feedback) {
+        feedback.textContent =
+          `Vacancy: ${job.title}. Current status: ${job.status}.`;
+      }
+    });
+
+    managementCard.append(
+      managementTitle,
+      managementDetails,
+      managementStatus,
+      manageButton
+    );
+
+    managementList.appendChild(managementCard);
+  }
 });
 
 } catch (error) {

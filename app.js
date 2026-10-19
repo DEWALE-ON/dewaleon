@@ -135,11 +135,58 @@ if (user) {
 }
 
   try {
-    if (isLogin) {
-      const { error } = await supabaseClient.auth.signInWithPassword({
-        email,
-        password
-      });
+    
+if (isLogin) {
+  const { error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) throw error;
+
+  feedback.textContent = 'Login successful! You are signed in.';
+  form.reset();
+
+  // Load employer dashboard separately so it cannot hold up login feedback.
+  (async () => {
+    try {
+      const { data: { user }, error: userError } =
+        await supabaseClient.auth.getUser();
+
+      if (userError || !user) return;
+
+      const { data: profile, error: profileError } =
+        await supabaseClient
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .maybeSingle();
+
+      if (profileError) {
+        console.error('Profile loading error:', profileError);
+        return;
+      }
+
+      if (profile?.role === 'employer') {
+        const dashboardLink =
+          document.getElementById('employerDashboardLink');
+
+        if (dashboardLink) dashboardLink.hidden = false;
+
+        await loadEmployerDashboard();
+
+        const dashboard =
+          document.getElementById('employerDashboard');
+
+        if (dashboard) dashboard.hidden = false;
+      }
+    } catch (dashboardError) {
+      console.error('Dashboard loading error:', dashboardError);
+    }
+  })();
+
+  return;
+}
 
       if (error) throw error;
 

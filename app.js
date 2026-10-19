@@ -49,7 +49,7 @@ const valid = ['home', 'jobs', 'professionals', 'employers', 'community']
 .includes(name) ? name : 'home';
 
 $$('.view').forEach(v =>
-v.classList.toggle('active', v.id === "view-${valid}")
+v.classList.toggle('active', v.id === `view-${valid}`)
 );
 
 $$('[data-view]').forEach(a =>

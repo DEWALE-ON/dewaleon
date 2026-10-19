@@ -176,38 +176,6 @@ if (isLogin) {
         await loadEmployerDashboard();
 
         const dashboard =
-          document.getElementById('employerDashboard');
-
-        if (dashboard) dashboard.hidden = false;
-      }
-    } catch (dashboardError) {
-      console.error('Dashboard loading error:', dashboardError);
-    }
-  })();
-
-  return;
-}
-
-      if (error) throw error;
-
-      feedback.textContent = 'Login successful! You are signed in.';
-
-  const { data: { user } } = await supabaseClient.auth.getUser();
-
-  if (user) {
-    const { data: profile, error: profileError } = await supabaseClient
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (profileError) {
-  feedback.textContent = 'Could not load your profile: ' + profileError.message;
-} else if (!profile) {
-  feedback.textContent = 'Your profile was not found.';
-} else if (profile.role === 'employer') {
-      const dashboardLink = document.getElementById('employerDashboardLink');
-
 
 $('#interestForm').addEventListener('submit', async (e) => {
   e.preventDefault();

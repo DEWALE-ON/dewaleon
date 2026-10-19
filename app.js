@@ -154,7 +154,11 @@ if (user) {
       .eq('id', user.id)
       .maybeSingle();
 
-    if (!profileError && profile?.role === 'employer') {
+    if (profileError) {
+  feedback.textContent = 'Could not load your profile: ' + profileError.message;
+} else if (!profile) {
+  feedback.textContent = 'Your profile was not found.';
+} else if (profile.role === 'employer') {
       const dashboardLink = document.getElementById('employerDashboardLink');
 
       if (dashboardLink) {

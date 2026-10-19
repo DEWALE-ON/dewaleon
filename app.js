@@ -208,17 +208,76 @@ if (isLogin) {
 } else if (profile.role === 'employer') {
       const dashboardLink = document.getElementById('employerDashboardLink');
 
-      if (dashboardLink) {
-        dashboardLink.hidden = false;
-      }
 
-      await loadEmployerDashboard();
-      document.getElementById('employerDashboard').hidden = false;
-    }
-  }
+$('#interestForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-  form.reset();
-  return;
+  const form = e.currentTarget;
+  const feedback = $('#formFeedback');
+  const button = form.querySelector('button[type="submit"]');
+
+  const name = form.elements.name.value.trim();
+  const email = form.elements.email.value.trim();
+  const role = form.elements.role.value;
+  const password = form.elements.password.value;
+  const isLogin = form.dataset.mode === 'login';
+
+  button.disabled = true;
+  feedback.textContent = isLogin ? 'Logging in...' : 'Creating your account...';
+
+  try {
+    if (isLogin) {
+      const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
+
+      if (error) throw error;
+
+      feedback.textContent = 'Login successful! You are signed in.';
+      form.reset();
+
+      // Release the login button before loading the dashboard.
+      button.disabled = false;
+
+      // Load the employer dashboard separately.
+      (async () => {
+        try {
+          const user = data.user;
+          if (!user) return;
+
+          const { data: profile, error: profileError } =
+            await supabaseClient
+              .from('profiles')
+              .select('role')
+              .eq('id', user.id)
+              .maybeSingle();
+
+          if (profileError) {
+            console.error('Profile loading error:', profileError);
+            return;
+          }
+
+          if (profile?.role === 'employer') {
+            const dashboardLink =
+              document.getElementById('employerDashboardLink');
+
+            if (dashboardLink) dashboardLink.hidden = false;
+
+            const dashboard =
+              document.getElementById('employerDashboard');
+
+            if (dashboard) dashboard.hidden = false;
+
+            await loadEmployerDashboard();
+          }
+        } catch (dashboardError) {
+          console.error('Dashboard loading error:', dashboardError);
+        }
+      })();
+
+      return;
     }
 
     const { data, error } = await supabaseClient.auth.signUp({
@@ -242,7 +301,9 @@ if (isLogin) {
     form.reset();
 
   } catch (error) {
-    feedback.textContent = error.message || 'Something went wrong. Please try again.';
+    console.error('Login or registration error:', error);
+    feedback.textContent =
+      error.message || 'Something went wrong. Please try again.';
   } finally {
     button.disabled = false;
   }

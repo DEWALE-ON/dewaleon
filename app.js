@@ -446,8 +446,7 @@ if (!verified) {
 
 loadSavedJobs();
 
-
-document.addEventListener('DOMContentLoaded', () => {
+(() => {
   const section = document.getElementById('messagesSection');
   const list = document.getElementById('conversationList');
   const messageList = document.getElementById('messageList');
@@ -642,5 +641,5 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   loadConversations();
-});
+})();
   

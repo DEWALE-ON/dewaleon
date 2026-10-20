@@ -445,3 +445,202 @@ if (!verified) {
 }
 
 loadSavedJobs();
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const section = document.getElementById('messagesSection');
+  const list = document.getElementById('conversationList');
+  const messageList = document.getElementById('messageList');
+  const chatTitle = document.getElementById('chatTitle');
+  const messageForm = document.getElementById('messageForm');
+  const messageBody = document.getElementById('messageBody');
+  const messageFeedback = document.getElementById('messageFeedback');
+  const sendButton = messageForm?.querySelector('button[type="submit"]');
+
+  if (!section || !list || !messageList || !messageForm) return;
+
+  let currentConversationId = null;
+  let currentUserId = null;
+
+  // Add a Messages link without changing existing navigation code.
+  const nav = document.getElementById('mainNav');
+  if (nav && !document.getElementById('messagesNavLink')) {
+    const link = document.createElement('a');
+    link.id = 'messagesNavLink';
+    link.href = '#messages';
+    link.textContent = 'Messages';
+    nav.appendChild(link);
+
+    link.addEventListener('click', async (event) => {
+      event.preventDefault();
+
+      document.querySelectorAll('.view').forEach(view => {
+        view.classList.remove('active');
+      });
+
+      const dashboard = document.getElementById('employerDashboard');
+      if (dashboard) dashboard.hidden = true;
+
+      section.hidden = false;
+      nav.classList.remove('open');
+
+      const menuToggle = document.getElementById('menuToggle');
+      if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
+
+      await loadConversations();
+    });
+  }
+
+  function showText(container, text) {
+    container.replaceChildren();
+    const p = document.createElement('p');
+    p.textContent = text;
+    container.appendChild(p);
+  }
+
+  async function loadConversations() {
+    list.replaceChildren();
+    showText(list, 'Loading conversations...');
+
+    const { data: { user }, error: authError } =
+      await supabaseClient.auth.getUser();
+
+    if (authError || !user) {
+      showText(list, 'Please log in to view your messages.');
+      return;
+    }
+
+    currentUserId = user.id;
+
+    const { data, error } = await supabaseClient
+      .from('conversations')
+      .select('id, job_id, professional_id, employer_id, created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      showText(list, 'Could not load conversations: ' + error.message);
+      return;
+    }
+
+    list.replaceChildren();
+
+    if (!data || data.length === 0) {
+      showText(list, 'No conversations yet.');
+      return;
+    }
+
+    data.forEach(conversation => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'btn btn-outline';
+      button.textContent =
+        'Conversation · Job ' + String(conversation.job_id);
+
+      button.addEventListener('click', () => {
+        openConversation(conversation);
+      });
+
+      list.appendChild(button);
+    });
+  }
+
+  async function openConversation(conversation) {
+    currentConversationId = conversation.id;
+    chatTitle.textContent =
+      'Conversation · Job ' + String(conversation.job_id);
+    messageFeedback.textContent = '';
+    await loadMessages();
+  }
+
+  async function loadMessages() {
+    if (!currentConversationId) return;
+
+    showText(messageList, 'Loading messages...');
+
+    const { data, error } = await supabaseClient
+      .from('messages')
+      .select('id, sender_id, body, created_at')
+      .eq('conversation_id', currentConversationId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      showText(messageList, 'Could not load messages: ' + error.message);
+      return;
+    }
+
+    messageList.replaceChildren();
+
+    if (!data || data.length === 0) {
+      showText(messageList, 'No messages yet. Start the conversation.');
+      return;
+    }
+
+    data.forEach(message => {
+      const item = document.createElement('article');
+      const sender = document.createElement('strong');
+      const body = document.createElement('p');
+      const time = document.createElement('small');
+
+      sender.textContent =
+        message.sender_id === currentUserId ? 'You' : 'Participant';
+      body.textContent = message.body;
+      time.textContent = new Date(message.created_at).toLocaleString();
+
+      item.append(sender, body, time);
+      messageList.appendChild(item);
+    });
+  }
+
+  messageForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const body = messageBody.value.trim();
+    if (!body || !currentConversationId) {
+      messageFeedback.textContent = 'Select a conversation first.';
+      return;
+    }
+
+    sendButton.disabled = true;
+    messageFeedback.textContent = 'Sending message...';
+
+    try {
+      const { data: { user }, error: authError } =
+        await supabaseClient.auth.getUser();
+
+      if (authError || !user) {
+        throw new Error('Please log in again to send messages.');
+      }
+
+      const { error } = await supabaseClient
+        .from('messages')
+        .insert({
+          conversation_id: currentConversationId,
+          sender_id: user.id,
+          body
+        });
+
+      if (error) throw error;
+
+      messageBody.value = '';
+      messageFeedback.textContent = 'Message sent.';
+      await loadMessages();
+    } catch (error) {
+      messageFeedback.textContent =
+        error.message || 'Could not send the message.';
+    } finally {
+      sendButton.disabled = false;
+    }
+  });
+
+  // Enable sending only after a conversation has been selected.
+  sendButton.disabled = true;
+
+  const originalOpenConversation = openConversation;
+  // Keep the selected conversation available for sending.
+  messageForm.addEventListener('focusin', () => {
+    sendButton.disabled = !currentConversationId;
+  });
+
+  loadConversations();
+});
+  

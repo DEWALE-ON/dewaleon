@@ -733,7 +733,23 @@ async function startConversation(jobId) {
   messageForm.addEventListener('focusin', () => {
     sendButton.disabled = !currentConversationId;
   });
+document.addEventListener('click', async (event) => {
+  const button = event.target.closest('[data-message-employer]');
 
+  if (!button) return;
+
+  button.disabled = true;
+
+  try {
+    await startConversation(button.dataset.messageEmployer);
+  } catch (error) {
+    alert(error.message || 'Could not start the conversation.');
+  } finally {
+    button.disabled = false;
+  }
+});
+  
   loadConversations();
+  
 })();
   

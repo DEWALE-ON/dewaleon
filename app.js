@@ -583,7 +583,68 @@ loadSavedJobs();
     messageFeedback.textContent = '';
     await loadMessages();
   }
+async function startConversation(jobId) {
+  const { data: { user }, error: authError } =
+    await supabaseClient.auth.getUser();
 
+  if (authError) throw authError;
+
+  if (!user) {
+    throw new Error('Please log in as a healthcare professional first.');
+  }
+
+  const { data: job, error: jobError } = await supabaseClient
+    .from('jobs')
+    .select('id, employer_id, status')
+    .eq('id', jobId)
+    .eq('status', 'published')
+    .maybeSingle();
+
+  if (jobError) throw jobError;
+
+  if (!job) {
+    throw new Error('This vacancy is no longer available.');
+  }
+
+  if (job.employer_id === user.id) {
+    throw new Error('You cannot message yourself about your own vacancy.');
+  }
+
+  const { data: existing, error: existingError } = await supabaseClient
+    .from('conversations')
+    .select('id, job_id, professional_id, employer_id, created_at')
+    .eq('job_id', job.id)
+    .eq('professional_id', user.id)
+    .eq('employer_id', job.employer_id)
+    .maybeSingle();
+
+  if (existingError) throw existingError;
+
+  let conversation = existing;
+
+  if (!conversation) {
+    const { data, error } = await supabaseClient
+      .from('conversations')
+      .insert({
+        job_id: job.id,
+        professional_id: user.id,
+        employer_id: job.employer_id
+      })
+      .select('id, job_id, professional_id, employer_id, created_at')
+      .single();
+
+    if (error) throw error;
+
+    conversation = data;
+  }
+
+  currentUserId = user.id;
+
+  document.getElementById('messagesNavLink')?.click();
+
+  await loadConversations();
+  await openConversation(conversation);
+}
   async function loadMessages() {
     if (!currentConversationId) return;
 

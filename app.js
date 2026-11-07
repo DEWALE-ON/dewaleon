@@ -577,6 +577,7 @@ loadSavedJobs();
 
   async function openConversation(conversation) {
     currentConversationId = conversation.id;
+    sendButton.disabled = false;
     chatTitle.textContent =
       'Conversation · Job ' + String(conversation.job_id);
     messageFeedback.textContent = '';

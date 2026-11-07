@@ -25,7 +25,37 @@ const $ = (selector, root=document) => root.querySelector(selector);
 const $$ = (selector, root=document) => [...root.querySelectorAll(selector)];
 const toast = (message) => { const el=$('#toast'); el.textContent=message; el.classList.add('show'); clearTimeout(window.toastTimer); window.toastTimer=setTimeout(()=>el.classList.remove('show'),3000); };
 function jobCard(job){return `<article class="job-card"><div class="job-card-top"><span class="org-mark ${job.tone}">${job.initials}</span><button class="save-btn" data-save="${job.id}" aria-label="Save ${job.title}" title="Save job">♡</button></div><h3>${job.title}</h3><div class="org-name">${job.org} · ${job.location}</div><p style="font-size:10px;color:#718583;line-height:1.7;margin:0">${job.description}</p><div class="job-tags"><span class="tag">${job.type}</span><span class="tag">${job.experience}</span><span class="tag">${job.category}</span></div><div class="job-card-bottom"><span class="salary">${job.salary}</span><button data-apply="${job.id}">View role →</button></div></article>`}
-function jobRow(job){return `<article class="job-row"><span class="org-mark ${job.tone}">${job.initials}</span><div><h3>${job.title}</h3><div class="org-name">${job.org} · ${job.location}</div><div class="job-tags"><span class="tag">${job.type}</span><span class="tag">${job.experience}</span><span class="tag">${job.category}</span></div><p style="font-size:10px;color:#718583;line-height:1.65;margin:8px 0 0">${job.description}</p></div><div class="job-row-actions"><span class="salary">${job.salary}</span><button data-apply="${job.id}">View role →</button></div></article>`}
+function jobRow(job) {
+  const messageButton = job.isDatabaseJob
+    ? `<button type="button" class="btn btn-outline"
+        data-message-employer="${job.id}">
+        Message employer
+      </button>`
+    : '';
+
+  return `
+    <article class="job-row">
+      <span class="org-mark ${job.tone}">${job.initials}</span>
+      <div>
+        <h3>${job.title}</h3>
+        <div class="org-name">${job.org} · ${job.location}</div>
+        <div class="job-tags">
+          <span class="tag">${job.type}</span>
+          <span class="tag">${job.experience}</span>
+          <span class="tag">${job.category}</span>
+        </div>
+        <p style="font-size:10px;color:#718583;line-height:1.65;margin:8px 0 0">
+          ${job.description}
+        </p>
+      </div>
+      <div class="job-row-actions">
+        <span class="salary">${job.salary}</span>
+        <button data-apply="${job.id}">View role →</button>
+        ${messageButton}
+      </div>
+    </article>`;
+}
+
 function renderJobs(){ $('#featuredJobs').innerHTML=jobs.slice(0,3).map(jobCard).join(''); filterJobs(); }
 function filterJobs(){const q=($('#jobSearch')?.value||'').toLowerCase().trim();const loc=$('#locationFilter')?.value||'';const type=$('#typeFilter')?.value||'';const filtered=jobs.filter(j=>(!q||`${j.title} ${j.org} ${j.category} ${j.description}`.toLowerCase().includes(q))&&(!loc||j.location===loc)&&(!type||j.type===type));$('#allJobs').innerHTML=filtered.length?filtered.map(jobRow).join(''):'<div class="empty-state"><strong>No matching sample roles</strong>Try another keyword, location or job type.</div>';$('#jobCount').textContent=`${filtered.length} sample ${filtered.length===1?'role':'roles'} shown`;}
 function renderPeople(){const q=($('#peopleSearch')?.value||'').toLowerCase().trim();const loc=$('#peopleLocation')?.value||'';const filtered=people.filter(p=>(!q||`${p.name} ${p.profession} ${p.specialty} ${p.skills}`.toLowerCase().includes(q))&&(!loc||p.location===loc));$('#peopleGrid').innerHTML=filtered.length?filtered.map((p,i)=>`<article class="person-card"><div class="person-avatar">${p.initials}</div><h3>${p.name}</h3><div class="profession">${p.profession}</div><p>${p.specialty}<br>${p.location} · ${p.experience}</p><div class="person-meta"><span class="tag">Sample profile</span></div><button class="btn btn-outline" data-contact="${i}">View profile</button></article>`).join(''):'<div class="empty-state"><strong>No matching sample profiles</strong>Try a different profession or location.</div>';}
@@ -328,7 +358,7 @@ async function loadSavedJobs() {
   try {
     const { data, error } = await supabaseClient
       .from('jobs')
-      .select('id, title, description, facility_name, city, employment_type, qualification_required, salary')
+      .select('id, employer_id, title, description, facility_name, city, employment_type, qualification_required, salary')
       .eq('status', 'published');
 
     if (error) throw error;
@@ -336,6 +366,8 @@ async function loadSavedJobs() {
     if (data && data.length) {
       const savedJobs = data.map(job => ({
         id: job.id,
+        employer_id: job.employer_id,
+isDatabaseJob: true,
         title: job.title,
         org: job.facility_name,
         location: job.city,

@@ -449,8 +449,10 @@ if (!verified) {
       if (error) throw error;
 
       const savedJob = {
-        id: data.id,
-        title: data.title,
+  id: data.id,
+  employer_id: data.employer_id,
+  isDatabaseJob: true,
+  title: data.title,
         org: data.facility_name,
         location: data.city,
         type: data.employment_type,

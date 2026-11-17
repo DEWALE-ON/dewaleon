@@ -57,6 +57,44 @@ function jobRow(job) {
 }
 
 function renderJobs(){ $('#featuredJobs').innerHTML=jobs.slice(0,3).map(jobCard).join(''); filterJobs(); }
+
+function showJobDetails(jobId) {
+  const job = jobs.find(j => String(j.id) === String(jobId));
+
+  if (!job) {
+    toast('Vacancy details could not be found.');
+    return;
+  }
+
+  const dialog = document.getElementById('actionDialog');
+  const title = document.getElementById('dialogTitle');
+  const desc = document.getElementById('dialogText');
+  const form = document.getElementById('interestForm');
+  const eyebrow = dialog.querySelector('.eyebrow');
+  const footnote = dialog.querySelector('.modal-footnote');
+
+  title.textContent = job.title;
+
+  desc.textContent =
+    `Employer: ${job.org}
+Location: ${job.location}
+Employment type: ${job.type}
+Salary: ${job.salary}
+Qualification / experience: ${job.experience}
+
+Job description:
+${job.description || 'No additional description provided.'}`;
+
+  desc.style.whiteSpace = 'pre-line';
+
+  if (eyebrow) eyebrow.textContent = 'VACANCY DETAILS';
+  if (footnote) footnote.hidden = true;
+
+  form.style.display = 'none';
+
+  if (!dialog.open) dialog.showModal();
+}
+
 function filterJobs(){const q=($('#jobSearch')?.value||'').toLowerCase().trim();const loc=$('#locationFilter')?.value||'';const type=$('#typeFilter')?.value||'';const filtered=jobs.filter(j=>(!q||`${j.title} ${j.org} ${j.category} ${j.description}`.toLowerCase().includes(q))&&(!loc||j.location===loc)&&(!type||j.type===type));$('#allJobs').innerHTML=filtered.length?filtered.map(jobRow).join(''):'<div class="empty-state"><strong>No matching sample roles</strong>Try another keyword, location or job type.</div>';$('#jobCount').textContent=`${filtered.length} sample ${filtered.length===1?'role':'roles'} shown`;}
 function renderPeople(){const q=($('#peopleSearch')?.value||'').toLowerCase().trim();const loc=$('#peopleLocation')?.value||'';const filtered=people.filter(p=>(!q||`${p.name} ${p.profession} ${p.specialty} ${p.skills}`.toLowerCase().includes(q))&&(!loc||p.location===loc));$('#peopleGrid').innerHTML=filtered.length?filtered.map((p,i)=>`<article class="person-card"><div class="person-avatar">${p.initials}</div><h3>${p.name}</h3><div class="profession">${p.profession}</div><p>${p.specialty}<br>${p.location} · ${p.experience}</p><div class="person-meta"><span class="tag">Sample profile</span></div><button class="btn btn-outline" data-contact="${i}">View profile</button></article>`).join(''):'<div class="empty-state"><strong>No matching sample profiles</strong>Try a different profession or location.</div>';}
 function setView(name) {

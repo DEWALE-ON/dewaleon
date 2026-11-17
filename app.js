@@ -138,7 +138,12 @@ function openDialog(kind = 'signup') {
   const title = $('#dialogTitle');
   const desc = $('#dialogText');
   const feedback = $('#formFeedback');
+const eyebrow = dialog.querySelector('.eyebrow');
+const footnote = dialog.querySelector('.modal-footnote');
 
+if (eyebrow) eyebrow.textContent = 'EARLY ACCESS';
+if (footnote) footnote.hidden = false;
+desc.style.whiteSpace = '';
   const isLogin = kind === 'login';
 
   title.textContent = isLogin ? 'Welcome back' :

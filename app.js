@@ -217,6 +217,7 @@ desc.style.whiteSpace = '';
 }
 
 document.addEventListener('click', e => {
+document.addEventListener('click', e => {
   const view = e.target.closest('[data-view]');
   if (view) {
     e.preventDefault();

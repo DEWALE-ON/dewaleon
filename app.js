@@ -80,6 +80,50 @@ function showJobDetails(jobId) {
 Location: ${job.location}
 Employment type: ${job.type}
 Salary: ${job.salary}
+Qualification: ${job.experience}
+
+Job description:
+${job.description || 'No additional description provided.'}`;
+
+  desc.style.whiteSpace = 'pre-line';
+
+  if (eyebrow) {
+    eyebrow.textContent = 'VACANCY DETAILS';
+  }
+
+  if (footnote) {
+    footnote.hidden = true;
+  }
+
+  form.style.display = 'none';
+
+  if (!dialog.open) {
+    dialog.showModal();
+  }
+}
+
+function showJobDetails(jobId) {
+  const job = jobs.find(j => String(j.id) === String(jobId));
+
+  if (!job) {
+    toast('Vacancy details could not be found.');
+    return;
+  }
+
+  const dialog = document.getElementById('actionDialog');
+  const title = document.getElementById('dialogTitle');
+  const desc = document.getElementById('dialogText');
+  const form = document.getElementById('interestForm');
+  const eyebrow = dialog.querySelector('.eyebrow');
+  const footnote = dialog.querySelector('.modal-footnote');
+
+  title.textContent = job.title;
+
+  desc.textContent =
+    `Employer: ${job.org}
+Location: ${job.location}
+Employment type: ${job.type}
+Salary: ${job.salary}
 Qualification / experience: ${job.experience}
 
 Job description:

@@ -229,7 +229,10 @@ const eyebrow = dialog.querySelector('.eyebrow');
 const footnote = dialog.querySelector('.modal-footnote');
 
 if (eyebrow) eyebrow.textContent = 'EARLY ACCESS';
-if (footnote) footnote.hidden = false;
+if (footnote) {
+  footnote.hidden = false;
+  footnote.style.display = '';
+}
 desc.style.whiteSpace = '';
   const isLogin = kind === 'login';
 

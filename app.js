@@ -166,7 +166,43 @@ function openDialog(kind = 'signup') {
   feedback.textContent = '';
   dialog.showModal();
 }
-document.addEventListener('click',e=>{const view=e.target.closest('[data-view]');if(view){e.preventDefault();setView(view.dataset.view);return;}const action=e.target.closest('[data-action]');if(action){openDialog(action.dataset.action);return;}const apply=e.target.closest('[data-apply]');if(apply){openDialog('apply');return;}const contact=e.target.closest('[data-contact]');if(contact){openDialog('contact');return;}const save=e.target.closest('[data-save]');if(save){save.classList.toggle('saved');save.textContent=save.classList.contains('saved')?'♥':'♡';toast(save.classList.contains('saved')?'Saved in this demo session.':'Removed from saved jobs.');return;}});
+
+document.addEventListener('click', e => {
+  const view = e.target.closest('[data-view]');
+  if (view) {
+    e.preventDefault();
+    setView(view.dataset.view);
+    return;
+  }
+
+  const action = e.target.closest('[data-action]');
+  if (action) {
+    openDialog(action.dataset.action);
+    return;
+  }
+
+  const apply = e.target.closest('[data-apply]');
+  if (apply) {
+    showJobDetails(apply.dataset.apply);
+    return;
+  }
+
+  const contact = e.target.closest('[data-contact]');
+  if (contact) {
+    openDialog('contact');
+    return;
+  }
+
+  const save = e.target.closest('[data-save]');
+  if (save) {
+    save.classList.toggle('saved');
+    save.textContent = save.classList.contains('saved') ? '♥' : '♡';
+    toast(save.classList.contains('saved')
+      ? 'Saved in this demo session.'
+      : 'Removed from saved jobs.');
+    return;
+  }
+});
 $('#menuToggle').addEventListener('click',()=>{const open=$('#mainNav').classList.toggle('open');$('#menuToggle').setAttribute('aria-expanded',String(open));});
 $('#searchJobs').addEventListener('click',filterJobs);$('#jobSearch').addEventListener('input',filterJobs);$('#locationFilter').addEventListener('change',filterJobs);$('#typeFilter').addEventListener('change',filterJobs);$('#searchPeople').addEventListener('click',renderPeople);$('#peopleSearch').addEventListener('input',renderPeople);$('#peopleLocation').addEventListener('change',renderPeople);
 
